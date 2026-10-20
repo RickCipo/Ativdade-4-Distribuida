@@ -1,9 +1,10 @@
-/*
- * Atividade 04 - Cálculo de média global com MPI_Reduce
- *
- * Compilar: mpicc -O2 -o media_mpi media_mpi.c
- * Executar: mpirun -np 4 ./media_mpi 1000
- */
+//Enrique Cipolla Martins - RA:
+//Henrique Ferreira Marciano - RA: 10439797
+//Pedro Gabriel Fernandes - RA: 10437465
+
+//Compilar: mpicc -O2 -o media_mpi media_mpi.c
+//Executar: mpirun -np 4 ./media_mpi 1000
+
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +17,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    /* Validação do argumento N */
+    //validação do argumento N
     if (argc != 2 || atoi(argv[1]) <= 0) {
         if (rank == 0)
             fprintf(stderr, "Uso: mpirun -np <P> %s <N>\n", argv[0]);
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
     }
     int N = atoi(argv[1]);
 
-    /* Vetor local com N valores aleatórios em [0,1] */
+    //setor local com N valores aleatórios em [0,1]
     srand((unsigned)time(NULL) + rank);
     float *vetor = malloc(N * sizeof(float));
     if (vetor == NULL) {
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    /* Soma local (double para reduzir erro de arredondamento) */
+    //soma local (double para reduzir erro de arredondamento)
     double soma_local = 0.0;
     for (int i = 0; i < N; i++) {
         vetor[i] = rand() / (float)RAND_MAX;
@@ -41,12 +42,12 @@ int main(int argc, char *argv[]) {
     }
     double media_local = soma_local / N;
 
-    /* Soma global no rank 0 */
+    //soma global no rank 0
     double soma_global = 0.0;
     MPI_Reduce(&soma_local, &soma_global, 1, MPI_DOUBLE, MPI_SUM, 0,
                MPI_COMM_WORLD);
 
-    /* Coleta das somas e médias locais no rank 0 (impressão ordenada) */
+    //coleta das somas e médias locais no rank 0 (impressão ordenada)
     double *somas = NULL, *medias = NULL;
     if (rank == 0) {
         somas  = malloc(size * sizeof(double));
